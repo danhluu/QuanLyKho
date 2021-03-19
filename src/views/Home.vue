@@ -182,4 +182,7 @@ td{
 .v-data-footer__select{
   font-size: 30px !important;
 }
+h2{
+  
+}
 </style>
