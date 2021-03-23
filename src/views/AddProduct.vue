@@ -29,31 +29,40 @@
 
         <v-card-text>
             
-            <v-form class="mt-3">
+            <v-form class="mt-3" ref="formValidate">
                 <v-layout row wrap justify-space-around>
-                    <v-flex md5>
-                        <v-text-field label="Title" autofocus>
-                        </v-text-field>
-                    </v-flex>
                     <v-flex md5 class="">
-                        <v-text-field label="Title">
+                        <v-text-field v-model="product.Name" label="Tên" required :rules="nameRules">
                         </v-text-field>
                     </v-flex>
                     <v-flex md5>
-                        <v-text-field label="Title" autofocus>
+                        <v-text-field v-model="product.Quantity" required :rules="quantityRules" label="Số Lượng"  >
                         </v-text-field>
                     </v-flex>
                     <v-flex md5 class="">
-                        <v-text-field label="Title">
-                        </v-text-field>
+                        <v-text-field
+                          label="Giá"
+                          prefix="$"
+                          v-model="product.Price"
+                          required :rules="quantityRules"
+                        ></v-text-field>
                     </v-flex>
                     <v-flex md5>
-                        <v-text-field label="Title" autofocus>
+                        <v-text-field v-model="product.Description"  label="Chi Tiết" >
                         </v-text-field>
                     </v-flex>
                     <v-flex md5 class="">
-                        <v-text-field label="Title">
+                        <v-text-field v-model="product.DisplayOrder" label="DisplayOrder">
                         </v-text-field>
+                    </v-flex>
+                    <v-flex md3 class="">
+                        <v-file-input
+                          truncate-length="10"
+                          accept="image/png, image/jpeg, image/bmp"
+                          placeholder="Chọn ảnh"
+                          show-size
+                          v-model="getImage" 
+                        ></v-file-input>
                     </v-flex>
                 </v-layout>
             </v-form>
@@ -68,7 +77,7 @@
           <v-spacer></v-spacer>
           <v-btn @click="dialog = false" height="50" width="100" depressed class="mr-3">Huỷ</v-btn>
           <v-btn
-            @click="dialog = false"
+            @click="saveProduct"
             height="50"
             class="success white--text"
             width="100"
@@ -81,12 +90,51 @@
 </template>
 
 <script>
+import { db } from '@/fireBase'
 export default {
     data(){
         return{
-            dialog: false,
-
+          code: '',
+          dialog: false,
+          getImage:{},
+          nameRules: [
+            v => !!v || 'Nhập tên',
+            v => (v && v.length >= 2) || 'Tên ít nhất 2 ký tự',
+          ],
+          quantityRules: [
+            v => !!v || 'Không được để trống',
+          ],
+          product:{
+            CreatedDate: new Date(),
+            Description:"",
+            DisplayOrder:"",
+            Image:"",
+            ModifiedDate:"",
+            Weight:"",
+            ProductCategoryId:""
+          }
         }
+    },
+    methods:{
+      saveProduct(){
+        if(this.$refs.formValidate.validate()){
+          console.log(this.code)
+          if(this.product.Quantity==null){
+            this.product.Quantity=1;
+          }
+          if(this.getImage.name!=null)
+            this.product.Image = this.getImage.name
+          const pr = this.product;
+          console.log(pr)
+          db.collection('Product').add(pr).then(
+            () =>{
+              console.log("added")
+            }
+          );
+          this.dialog = false;
+        }
+        
+      }
     }
 }
 </script>
