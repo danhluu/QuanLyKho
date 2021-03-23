@@ -188,7 +188,6 @@ import { db } from '@/fireBase'
           events.push(appData);
         });
         this.desserts = events;
-        console.log(this.desserts[0]);
       },
       LoadData(){
         this.created();

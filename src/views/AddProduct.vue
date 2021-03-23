@@ -35,10 +35,27 @@
                         <v-text-field v-model="product.Name" label="Tên" required :rules="nameRules">
                         </v-text-field>
                     </v-flex>
+
+                    <v-flex md5 class="">
+                      <v-select
+                      v-model="CategoryId"
+                      :items="items"
+                      item-text="Name"
+                      item-value="id"
+                      label="Select"
+                      persistent-hint
+                      return-object
+                      single-line
+                      required 
+                      :rules="quantityRules"
+                      ></v-select>
+                    </v-flex>
+
                     <v-flex md5>
                         <v-text-field v-model="product.Quantity" required :rules="quantityRules" label="Số Lượng"  >
                         </v-text-field>
                     </v-flex>
+                    
                     <v-flex md5 class="">
                         <v-text-field
                           label="Giá"
@@ -62,6 +79,7 @@
                           placeholder="Chọn ảnh"
                           show-size
                           v-model="getImage" 
+                          label="Hình Ảnh"
                         ></v-file-input>
                     </v-flex>
                 </v-layout>
@@ -94,6 +112,10 @@ import { db } from '@/fireBase'
 export default {
     data(){
         return{
+           items: [
+
+           ],
+           CategoryId:"",
           code: '',
           dialog: false,
           getImage:{},
@@ -115,25 +137,41 @@ export default {
           }
         }
     },
+    mounted(){
+      this.created();
+    },
     methods:{
       saveProduct(){
         if(this.$refs.formValidate.validate()){
-          console.log(this.code)
           if(this.product.Quantity==null){
             this.product.Quantity=1;
           }
           if(this.getImage.name!=null)
-            this.product.Image = this.getImage.name
+            this.product.Image = this.getImage.name;
+          if(this.CategoryId.id!=null){
+            this.product.ProductCategoryId = this.CategoryId.id;
+          }
           const pr = this.product;
-          console.log(pr)
           db.collection('Product').add(pr).then(
             () =>{
-              console.log("added")
+              console.log("added" )
+              console.log(pr)
             }
           );
           this.dialog = false;
         }
         
+      },
+      async created(){
+        let Product = await db.collection('ProductCategory').get('');
+        let item = [];
+        Product.forEach(doc =>{
+          let appData = doc.data();
+          appData.id = doc.id;
+          item.push(appData);
+        });
+        this.items = item;
+        console.log(this.items[0]);
       }
     }
 }
